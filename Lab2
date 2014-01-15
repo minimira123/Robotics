@@ -1,0 +1,48 @@
+import java.util.Timer;
+
+import lejos.nxt.*;
+
+public class RPMCounter {
+	//SPEEDS
+	static final int[] speed = {1, 10, 50, 100, 200, 360, 720, 1000};
+	static int count = 0;
+	public static void main(String[] args) throws Exception {	
+		//VARIABLES
+		boolean on = true;
+		long rpm = 0;
+		TouchSensor touch = new TouchSensor(SensorPort.S1);
+		long startTime = System.currentTimeMillis();
+
+		
+		//LOOP FOR WHEN BUTTON IS PRESSED
+		while (!Button.ESCAPE.isPressed()) {
+			Motor.B.setSpeed(speed[5]);
+			Motor.B.forward();	//START MOTOR
+			
+			//WHEN SENSOR IS TOUCHED
+			if (touch.isPressed() && on == false) {
+				on = true;
+				count++;	//COUNT WHEN SENSOR IS TOUCHED
+			}
+			
+			//DON'T START COUNTING UNTIL THE SENSOR IS NOT TOUCHED AND TOUCHED AGAIN
+			if (!touch.isPressed()) {
+				on = false;
+			}
+			
+			//PRINT THE COUNT AND TIME
+			long endTime = System.currentTimeMillis();
+			long deltaTime = endTime - startTime;
+			double elapsedSeconds = deltaTime / 1000.0;			
+			LCD.drawString("" + count, 0, 0);
+			LCD.drawString("" + elapsedSeconds, 0, 2);
+			LCD.drawString("RPM: " + rpm, 0, 4);
+			
+			if (elapsedSeconds >= 10) {
+				Motor.B.stop();
+				rpm = count * 6;
+				LCD.drawString("RPM: " + rpm, 0, 4);
+			}
+		}
+	}
+}
